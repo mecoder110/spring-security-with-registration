@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurity {
-	private static final String[] WHITE_LIST_URLS = { "v1/register", "/health" };
+	private static final String[] WHITE_LIST_URLS = { "v1/register", "/health", "v1/registrationVarify*", "v1/*", "v1/regenerateToken/*" };
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -22,7 +22,7 @@ public class WebSecurity {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
+        return http.csrf(csrf->csrf.disable())
                 .authorizeHttpRequests()
                 .requestMatchers(WHITE_LIST_URLS).permitAll()
 				/*

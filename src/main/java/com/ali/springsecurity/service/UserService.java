@@ -10,4 +10,8 @@ public interface UserService {
 
 	VarificationToken saveToken(VarificationToken verifyToken);
 
+	String verifyToken(String token);
+
+	String regenerateToken(String token);
+
 }

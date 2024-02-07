@@ -28,10 +28,10 @@ public class UserRegistrationCompleteEventListner implements ApplicationListener
 		VarificationToken verify = new VarificationToken(token, user);
 		userService.saveToken(verify);
 
-		String url = event.getVarificationUrl() + "/varifivation?token=" + token;
+		String url = event.getVarificationUrl() + "/v1/registrationVarify?token=" + token;
 		// mail utility
 
-		log.info("Please click on link{}",url);
+		log.info("Please click on link {}",url);
 	}
 
 }

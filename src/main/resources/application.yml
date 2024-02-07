@@ -24,3 +24,14 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update  
+
+
+logging:
+  file:
+    name: mylog.log
+
+# Log level
+  level:
+    root: INFO
+      
+      
