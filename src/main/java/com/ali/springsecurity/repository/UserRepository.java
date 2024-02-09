@@ -8,4 +8,6 @@ import com.ali.springsecurity.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+	User findByEmail(String email);
+
 }

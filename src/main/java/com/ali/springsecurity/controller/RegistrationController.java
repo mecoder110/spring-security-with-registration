@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ali.springsecurity.entity.User;
 import com.ali.springsecurity.event.UserRegistrationCompleteEvent;
+import com.ali.springsecurity.model.PasswordModel;
 import com.ali.springsecurity.model.UserModel;
 import com.ali.springsecurity.service.UserService;
+import com.ali.springsecurity.utlity.MailUtility;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +62,39 @@ public class RegistrationController {
 		log.info("click link to validate : {} ",url);
 		return "token regenerated success";}
 
+	//GENERATE TOKEN to reset password
+	@GetMapping("/resetPwdToken/{email}")
+	public String resetPasswordToken(@PathVariable String email, HttpServletRequest request) {
+		String pwdToken = userService.regeneratePasswordToken(email);
+		if(pwdToken.equalsIgnoreCase("invalid")) {
+			return "Bad User";
+		}
+		String url= applicationUrl(request) +"/v1/resetPwd?token="+ pwdToken;
+		log.info("link to reset password {}", url);
+		return "link sent to reset password";
+		
+	}
+	// RESET PASSWORD IF Without current password
+	@PutMapping("/resetPwd")
+	public String resetPassword(@RequestParam("token") String token,
+			@RequestBody PasswordModel passwordModel) {
+		String pwdStatus = userService.resetPassword(passwordModel, token);
+		if(pwdStatus.equalsIgnoreCase("invalid")) {
+			return "Bad User";
+		}
+		return "password reset success!";
+		
+	}
+	// UPDATE PASSWORD with current password
+	@PutMapping("/changePwd")
+	public String changePassword(@RequestBody PasswordModel passwordModel) {
+		String pwdStatus =userService.changePassword(passwordModel);
+		if(pwdStatus.equalsIgnoreCase("invalid")) {
+			return "Bad user or password";
+		}
+		return "password change success!";
+		
+	}
 	private String applicationUrl(HttpServletRequest request) {
 		String url = "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 		return url;

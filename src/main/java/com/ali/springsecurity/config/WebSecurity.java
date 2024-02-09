@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurity {
-	private static final String[] WHITE_LIST_URLS = { "v1/register", "/health", "v1/registrationVarify*", "v1/*", "v1/regenerateToken/*" };
+	private static final String[] WHITE_LIST_URLS = { "v1/register", "/health", "v1/registrationVarify*", "v1/*", "v1/regenerateToken/*","v1/resetPwdToken/*" };
 
     @Bean
     PasswordEncoder passwordEncoder() {

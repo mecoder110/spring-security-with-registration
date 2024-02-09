@@ -1,6 +1,7 @@
 package com.ali.springsecurity.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ali.springsecurity.entity.User;
 import com.ali.springsecurity.entity.VarificationToken;
+import com.ali.springsecurity.model.PasswordModel;
 import com.ali.springsecurity.model.UserModel;
 import com.ali.springsecurity.repository.UserRepository;
 import com.ali.springsecurity.repository.VarificationTokenRepository;
@@ -82,6 +84,48 @@ public class UserServiceImpl implements UserService {
 		VarificationToken reTokenEntity = new VarificationToken(reToken, user);
 		VarificationToken save = tokenRepository.save(reTokenEntity);
 		return save.getToken();
+	}
+
+	@Override
+	public String resetPassword(PasswordModel passwordModel, String token) {
+		Optional<VarificationToken> tokenEntity = Optional.ofNullable(tokenRepository.findByToken(token));
+		if(tokenEntity.isEmpty()) {
+			return "invalid";
+		}			
+		User user = tokenEntity.get().getUser();
+		
+		user.setPassword(passwordEncoder.encode(passwordModel.getNewPassword()));
+		userRepository.save(user);
+		tokenRepository.delete(tokenEntity.get());
+		return "password changed";
+	}
+
+	@Override
+	public String changePassword(PasswordModel passwordModel) {
+		User user = userRepository.findByEmail(passwordModel.getEmail());
+		if(user==null) {
+			return "invalid";
+		}
+		boolean matches = passwordEncoder.matches(passwordModel.getCurrentPassword(), user.getPassword());
+		if(matches) {
+			user.setPassword(passwordEncoder.encode(passwordModel.getNewPassword()));
+			userRepository.save(user);
+			return "password updated";
+		}
+		return "invalid";
+	}
+
+	@Override
+	public String regeneratePasswordToken(String email) {
+		Optional<User> user = Optional.ofNullable(userRepository.findByEmail(email));
+		
+		if(user.isEmpty()) {
+			return "invalid";
+		}
+		String newToken = UUID.randomUUID().toString();
+		VarificationToken pwdToken = new VarificationToken(newToken, user.get());
+		tokenRepository.save(pwdToken);
+		return newToken;
 	}
 }
 
